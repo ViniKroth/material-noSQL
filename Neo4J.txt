@@ -1,0 +1,53 @@
+Neo4J
+
+MATCH (n) RETURN n LIMIT 25
+
+MATCH (p:Person)
+RETURN p
+LIMIT 25
+
+MATCH (m:Movie)
+RETURN m
+LIMIT 20
+
+
+MATCH (:Person {name: 'Kevin Bacon'})-[:ACTED_IN]->(movie:Movie)
+RETURN movie
+
+
+MATCH (person {name: 'Tom Hanks'})-[:DIRECTED]->(movie:Movie)
+RETURN movie
+
+MATCH (person {name: 'Tom Hanks'})--(movie)
+RETURN movie
+
+MATCH (hoffa:Movie {title: 'Hoffa'})<-[:ACTED_IN]-(actor)
+RETURN actor
+
+MATCH (hoffa {title: 'Hoffa'})<-[:ACTED_IN|DIRECTED]-(person)
+RETURN person.name
+
+MATCH (bacon {name: 'Kevin Bacon'})-[:ACTED_IN|DIRECTED*2]-(person:Person)
+RETURN person.name
+
+MATCH (bacon {name: 'Kevin Bacon'})-[:ACTED_IN|DIRECTED*4]-(person:Person)
+RETURN person
+
+
+MATCH
+  (bacon:Person {name: 'Kevin Bacon'}),
+  (tom:Person {name: 'Tom Hanks'}),
+  p = shortestPath((bacon)-[*..15]-(tom))
+RETURN p
+
+MATCH
+  (bacon:Person {name: 'Kevin Bacon'}),
+  (tom:Person {name: 'Tom Hanks'}),
+  p = allShortestPaths((bacon)-[*]-(tom))
+RETURN p
+
+MATCH
+  (river:Person {name: 'River Phoenix'}),
+  (tom:Person {name: 'Tom Hanks'}),
+  p = allShortestPaths((river)-[*]-(tom))
+RETURN p

@@ -1,0 +1,37 @@
+Redis
+
+
+SET 63d2e4079e760c94fdd173e7 '{"_id":{"$oid":"63d2e4079e760c94fdd173e7"},"dataLancamento":{"$date":"2010-08-17T00:00:00.000Z"},"nome":"To Kill a Mockingbird","preco":99.9,"categoria":"Comédia"}'
+
+
+
+FT.CREATE livros on json schema
+$.dataLancamento as dataLancamento numeric SORTABLE
+$.nome as nome text SORTABLE
+$.preco as preco numeric SORTABLE
+$.categoria as categoria text SORTABLE
+
+FT.CREATE livros on json schema $.dataLancamento as dataLancamento numeric SORTABLE $.nome as nome text SORTABLE $.preco as preco numeric SORTABLE $.categoria as categoria text SORTABLE
+
+
+JSON.SET 63d2e4079e760c94fdd173e7 $ '{ "_id": { "$oid": "63d2e4079e760c94fdd173e7" }, "dataLancamento": 1282003200 , "nome": "Duna", "preco": 119.2, "categoria": "Ficcao"}'
+
+JSON.SET 63d2e4079e760c94fdd173e5 $ '{ "_id": { "$oid": "63d2e4079e760c94fdd173e7" }, "dataLancamento": 1182003200 , "nome": "Senhor dos Anéis", "preco": 59, "categoria": "Ficcao"}'
+
+JSON.SET 63d2e1ad9e760c94fdd173e6 $ '{ "_id": { "$oid": "63d2e4079e760c94fdd173e7" }, "dataLancamento": 1482003200 , "nome": "To Kill a Mockingbird", "preco": 99.9, "categoria": "Comedia"}'
+
+JSON.SET 63d2e44c9e760c94fdd173e8 $ '{ "_id": { "$oid": "63d2e4079e760c94fdd173e7" }, "dataLancamento": 1282203200 , "nome": "O sol é para todos", "preco": 22.9, "categoria": "Drama"}'
+
+JSON.SET 63d2e44c9e760c94fdd173d1 $ '{ "_id": { "$oid": "63d2e4079e760c94fdd173e7" }, "dataLancamento": 1212203200 , "nome": "Dracula", "preco": 10.9, "categoria": "Drama"}'
+
+
+FT.SEARCH livros "@nome:(*mock*)"
+
+
+
+FT.AGGREGATE livros "*" GROUPBY 1 @categoria REDUCE sum 1 @preco as precoTotal //preco total
+FT.AGGREGATE livros "*" GROUPBY 1 @categoria REDUCE COUNT_DISTINCT 1 @nome as quantidadeLivros //quantidadeLivros por categoria
+FT.AGGREGATE livros "*" GROUPBY 1 @categoria REDUCE sum 1 @preco as precoTotal REDUCE COUNT_DISTINCT 1 @nome as quantidadeLivros APPLY "@precoTotal/@quantidadeLivros" as precoMedio //preco medio
+FT.AGGREGATE livros "*" GROUPBY 1 @categoria REDUCE sum 1 @preco as precoTotal REDUCE COUNT_DISTINCT 1 @nome as quantidadeLivros APPLY "@precoTotal/@quantidadeLivros" as precoMedio SORTBY 2 @quantidadeLivros DESC
+FT.AGGREGATE livros "*" GROUPBY 1 @categoria REDUCE sum 1 @preco as precoTotal REDUCE COUNT_DISTINCT 1 @nome as quantidadeLivros APPLY "@precoTotal/@quantidadeLivros" as precoMedio SORTBY 2 @quantidadeLivros DESC LIMIT 0 1
+FT.AGGREGATE livros "@categoria:(drama)" GROUPBY 1 @categoria REDUCE sum 1 @preco as precoTotal REDUCE COUNT_DISTINCT 1 @nome as quantidadeLivros APPLY "@precoTotal/@quantidadeLivros" as precoMedio SORTBY 2 @quantidadeLivros DESC LIMIT 0 1
